@@ -3,85 +3,81 @@ package jm.task.core.jdbc.dao;
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
 
-    private Connection connection;
     public UserDaoJDBCImpl() {
-
-        connection = Util.getConnection();
     }
 
+    @Override
     public void createUsersTable() {
-
         String query = "CREATE TABLE IF NOT EXISTS users (" +
                 "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
                 "name VARCHAR(255) NOT NULL," +
                 "lastName VARCHAR(255) NOT NULL," +
                 "age TINYINT UNSIGNED NOT NULL" +
                 ")";
-
-        // Выполнение SQL-запроса с использованием соединения из класса Util
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(query);
-            System.out.println("created");
+        try (Connection connection = Util.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
-
     }
 
+    @Override
     public void dropUsersTable() {
         String query = "DROP TABLE IF EXISTS users";
-
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(query);
-            System.out.println("dropped");
+        try (Connection connection = Util.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println( e.getMessage());
+            System.err.println(e.getMessage());
         }
     }
 
+    @Override
     public void saveUser(String name, String lastName, byte age) {
-        String query = "INSERT INTO users (name, lastName, age) VALUES ('" + name + "', '" + lastName + "', " + age + ")";
-
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(query);
-            System.out.println("saved " + name);
+        String query = "INSERT INTO users (name, lastName, age) VALUES (?, ?, ?)";
+        try (Connection connection = Util.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, lastName);
+            preparedStatement.setByte(3, age);
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
     }
 
+    @Override
     public void removeUserById(long id) {
-        String query = "DELETE FROM users WHERE id = " + id;
-
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(query);
-            System.out.println("removed " + id);
+        String query = "DELETE FROM users WHERE id = ?";
+        try (Connection connection = Util.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setLong(1, id);
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
     }
 
+    @Override
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
         String query = "SELECT * FROM users";
-
-        try (Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
+        try (Connection connection = Util.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
-                long id = resultSet.getLong("id");
-                String name = resultSet.getString("name");
-                String lastName = resultSet.getString("lastName");
-                byte age = resultSet.getByte("age");
-                users.add(new User(id, name, lastName, age));
+                users.add(new User(
+                        resultSet.getLong("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("lastName"),
+                        resultSet.getByte("age")));
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
@@ -89,12 +85,12 @@ public class UserDaoJDBCImpl implements UserDao {
         return users;
     }
 
+    @Override
     public void cleanUsersTable() {
         String query = "TRUNCATE TABLE users";
-
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(query);
-            System.out.println("cleaned");
+        try (Connection connection = Util.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
