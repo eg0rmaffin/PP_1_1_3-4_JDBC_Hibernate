@@ -13,12 +13,14 @@ import java.util.List;
 public class UserDaoJDBCImpl implements UserDao {
 
     private Connection connection;
+
     public UserDaoJDBCImpl() {
 
-        connection = Util.getConnection();
     }
 
+    @Override
     public void createUsersTable() {
+        connection = Util.getConnection();
 
         String query = "CREATE TABLE IF NOT EXISTS users (" +
                 "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
@@ -27,7 +29,6 @@ public class UserDaoJDBCImpl implements UserDao {
                 "age TINYINT UNSIGNED NOT NULL" +
                 ")";
 
-        // Выполнение SQL-запроса с использованием соединения из класса Util
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(query);
             System.out.println("created");
@@ -37,18 +38,22 @@ public class UserDaoJDBCImpl implements UserDao {
 
     }
 
+    @Override
     public void dropUsersTable() {
+        connection = Util.getConnection();
         String query = "DROP TABLE IF EXISTS users";
 
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(query);
             System.out.println("dropped");
         } catch (SQLException e) {
-            System.err.println( e.getMessage());
+            System.err.println(e.getMessage());
         }
     }
 
+    @Override
     public void saveUser(String name, String lastName, byte age) {
+        connection = Util.getConnection();
         String query = "INSERT INTO users (name, lastName, age) VALUES ('" + name + "', '" + lastName + "', " + age + ")";
 
         try (Statement statement = connection.createStatement()) {
@@ -59,7 +64,9 @@ public class UserDaoJDBCImpl implements UserDao {
         }
     }
 
+    @Override
     public void removeUserById(long id) {
+        connection = Util.getConnection();
         String query = "DELETE FROM users WHERE id = " + id;
 
         try (Statement statement = connection.createStatement()) {
@@ -70,7 +77,9 @@ public class UserDaoJDBCImpl implements UserDao {
         }
     }
 
+    @Override
     public List<User> getAllUsers() {
+        connection = Util.getConnection();
         List<User> users = new ArrayList<>();
         String query = "SELECT * FROM users";
 
@@ -89,7 +98,9 @@ public class UserDaoJDBCImpl implements UserDao {
         return users;
     }
 
+    @Override
     public void cleanUsersTable() {
+        connection = Util.getConnection();
         String query = "TRUNCATE TABLE users";
 
         try (Statement statement = connection.createStatement()) {
