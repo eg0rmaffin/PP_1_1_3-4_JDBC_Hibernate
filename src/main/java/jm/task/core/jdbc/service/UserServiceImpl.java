@@ -22,25 +22,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-//        new UserDaoJDBCImpl().saveUser(name, lastName, age);
         userDao.saveUser(name, lastName, age);
     }
 
     @Override
     public void removeUserById(long id) {
-//        new UserDaoJDBCImpl().removeUserById(id);
         userDao.removeUserById(id);
     }
 
     @Override
     public List<User> getAllUsers() {
-//        return new UserDaoJDBCImpl().getAllUsers();
         return userDao.getAllUsers();
     }
 
     @Override
     public void cleanUsersTable() {
-//        new UserDaoJDBCImpl().cleanUsersTable();
         userDao.cleanUsersTable();
     }
 }

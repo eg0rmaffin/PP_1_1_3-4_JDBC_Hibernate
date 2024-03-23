@@ -30,7 +30,7 @@ public class Util {
         return connection;
     }
 
-    // Для Hibernate
+
     private static SessionFactory sessionFactory;
 
     public static SessionFactory getSessionFactory() {
